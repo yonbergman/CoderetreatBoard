@@ -1,0 +1,79 @@
+!!!5
+%html
+	%head
+		%title Coderetreat Dashboard
+		%script{:type => "text/javascript", :src => 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js'}
+		%script{:type => "text/javascript", :src => '/underscore.js'}
+		%script{:type => "text/javascript", :src => '/backbone.js'}
+		%script{:type => "text/javascript", :src => '/website.js'}
+		%link{:type => "text/css", :rel => "stylesheet", :href => '/website.css'}
+	%body
+		#in-session.page
+			.left
+				.session-counter
+					%h2 Session #1
+				.twitter_wall
+					%script{:src => "http://widgets.twimg.com/j/2/widget.js"}
+					:javascript
+						new TWTR.Widget({
+						  version: 2,
+						  type: 'search',
+						  search: '#GDCR OR #GDCRIL',
+						  interval: 30000,
+						  title: '',
+						  subject: '#GDCRIL',
+						  width: 250,
+						  height: 300,
+						  theme: {
+						    shell: {
+						      background: '#995E24',
+						      color: '#F0A130'
+						    },
+						    tweets: {
+						      background: '#FFFACB',
+						      color: '#000000',
+						      links: '#D73513'
+						    }
+						  },
+						  features: {
+						    scrollbar: false,
+						    loop: true,
+						    live: true,
+						    behavior: 'default'
+						  }
+						}).render().start();
+			.container
+				.progress-bar
+					.pb-wrap
+						.pb-size
+				.text_area
+					.text.rules 
+						%h2 Game of Life rules
+						%p stuff die stuff live
+						%ul
+							%li Living Cell - dies unless 2-3 neighbours
+							%li Dead Cell - comes alive if exactly 3 neighbours
+					.text.solid{:style => "display: none;"}
+						%h2 SOLID STUFF
+						%ui
+							%li
+								%strong S
+								ingle responsibility principle
+							%li		
+								%strong O
+								pen/closed principle
+							%li		
+								%strong L
+								skov substitution principle
+							%li		
+								%strong I
+								nterface segregation principle
+							%li		
+								%strong D
+								ependency inversion principle
+					.text.stuff{:style => "display:none;"}
+						%h2 MORE STUFF
+						%p YEAY
+						%img{:src=> "http://nyan-cat.com/images/nyan-cat.gif"}
+			.timer_overlay timer
+			.alarm alarm
