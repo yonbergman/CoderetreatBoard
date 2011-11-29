@@ -83,5 +83,38 @@ h1,h2,h3,h4,h5{
 	.text{
 		padding: 10px;
 	}
+	iframe{
+		height: 90%;
+		width: 96%;
+		margin: 2%;
+		
+	}
+}
+
+.raffle{
+	overflow: hidden;
+	li{
+		$h: 30px;
+		float: left;
+		display: block;
+		width: 200px;
+		height: $h;
+		line-height: $h;
+		margin: 5px;
+		background: #ede8b1;
+		color: $text;
+		font-weight: bold;
+		text-align: center;
+		&.selected{
+			background: $link;
+		}
+		&.won{
+			
+		}
+		&.lost{
+			color: $text-box;
+		}
+	}
+	
 }
 

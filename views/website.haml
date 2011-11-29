@@ -8,17 +8,34 @@
 		%script{:type => "text/javascript", :src => '/website.js'}
 		%link{:type => "text/css", :rel => "stylesheet", :href => '/website.css'}
 	%body
+		#templates
+			%script#raffle{:type => "text/template"}
+				.raffle
+					%ul
+						<% _.each(participants, function (name) { %><li><%= name %></li><% }); %>
+			%script#text{:type => "text/template"}		
+				.text{:style => "display:none"}
+					%h2 <%= header %>
+					%p <%= text %>
+			%script#ideas{:type => "text/template"}		
+				.text.ideas{:style => "display:none"}
+					%h2 Session Ideas
+					%ul	
+						<% _.each(ideas, function (name) { %><li><%= name %></li><% }); %>
+			%script#session{:type => "text/template"}
+				%h2 Session #<%= number %>
+			%script#alarm{:type => "text/template"}
+				%iframe{:src => "http://www.youtube.com/watch_popup?v=<%= alarm %>&autoplay=1&iv_load_policy=3&version=3"}
 		#in-session.page
 			.left
 				.session-counter
-					%h2 Session #1
 				.twitter_wall
 					%script{:src => "http://widgets.twimg.com/j/2/widget.js"}
 					:javascript
 						new TWTR.Widget({
 						  version: 2,
 						  type: 'search',
-						  search: '#GDCR OR #GDCRIL',
+						  search: "#GDCR OR #GDCRIL",
 						  interval: 30000,
 						  title: '',
 						  subject: '#GDCRIL',
@@ -47,33 +64,6 @@
 					.pb-wrap
 						.pb-size
 				.text_area
-					.text.rules 
-						%h2 Game of Life rules
-						%p stuff die stuff live
-						%ul
-							%li Living Cell - dies unless 2-3 neighbours
-							%li Dead Cell - comes alive if exactly 3 neighbours
-					.text.solid{:style => "display: none;"}
-						%h2 SOLID STUFF
-						%ui
-							%li
-								%strong S
-								ingle responsibility principle
-							%li		
-								%strong O
-								pen/closed principle
-							%li		
-								%strong L
-								skov substitution principle
-							%li		
-								%strong I
-								nterface segregation principle
-							%li		
-								%strong D
-								ependency inversion principle
-					.text.stuff{:style => "display:none;"}
-						%h2 MORE STUFF
-						%p YEAY
-						%img{:src=> "http://nyan-cat.com/images/nyan-cat.gif"}
-			.timer_overlay timer
-			.alarm alarm
+			.timer_overlay{:style => "display:none;"} timer
+			%script
+				window.currentSession = #{session.to_json}

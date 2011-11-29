@@ -1,0 +1,28 @@
+$background: #1B120D;
+$header: #F0A130;
+$link: #D73513;
+$text-box: #FFFACB;
+$header-background: #995E24;
+$border: #312118;
+$text: #000000;
+
+.ui-page{
+	background: $background;
+}
+
+.ui-header{
+	background: $header-background;
+	color: $header;
+}
+
+.ui-btn{
+	background: $link;
+	border: none;
+	color: white;
+}
+
+.timer{
+	text-align: center;
+	font-size: 90px;
+	color: white;
+}
