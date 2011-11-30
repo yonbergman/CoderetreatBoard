@@ -4,6 +4,7 @@
 		%title Coderetreat Remote
 		%script{:type => "text/javascript", :src => 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js'}
 		%script{:type => "text/javascript", :src => "http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.js"}
+		%script{:type => "text/javascript", :src => "http://js.pusherapp.com/1.9/pusher.min.js"}
 		%link{:rel => "stylesheet", :href => "http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css"}
 		%script{:type => "text/javascript", :src => "/remote.js"}
 		%link{:rel => "stylesheet", :href => "/remote.css"}
@@ -12,12 +13,9 @@
 			%header{:data => {:role => :header}}
 				%h2 Coderetreat remote
 			%div{:data => {:role => :content}}
+				.session_name
 				.timer
-					- if @minutes_left
-						!= "#{@minutes_left}:#{@seconds_left}"
-				%a.button{:data => {:role => :button}, :href => "/next"} GO	
-			- if session[:type] == "raffle"
-				%div{:data => {:role => :content}}
-					.timer
-					%a.button{:data => {:role => :button}, :href => "/nextRaffle"} RAFFLE
-		
+				.button.nyan{:data => {:role => :button}} stop Nyan Cat	
+				.button.raffle{:data => {:role => :button}} Everyday I'm Shuffling!
+				%br
+				.button.go{:data => {:role => :button}} Next

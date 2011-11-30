@@ -50,6 +50,9 @@ class Slideshow
 		@alarmTemplate = $("#alarm").html()
 		@numberOfSlides = @el.find('.text').length
 		@idx = 0 
+		window.channel.bind('stop_alarm', => 
+			@stop_alarm()
+		)
 
 	tick: (milis) ->
 		return if milis % @timePerSlide > 0 
@@ -73,6 +76,9 @@ class Slideshow
 		iframe = $(@alarmTemplate)
 		iframe.attr("src","http://www.youtube.com/watch_popup?v=#{currentSession.alarm}&autoplay=1&iv_load_policy=3&version=3")
 		@el.empty().append(iframe)
+	
+	stop_alarm: ->
+		@el.empty()
 
 
 class Session
@@ -91,6 +97,8 @@ class Session
 		]
 		
 		@milis = @secondsLeft * 1000
+		@ui.deleteCode.hide()
+
 
 		@intervalObj = setInterval(
 			=> @tick()
@@ -116,7 +124,9 @@ class Session
 class Raffle
 	constructor: (el = $(".raffle"), @timeToEnd=1000, @interval=50) ->
 		@el = $(el)
-		@start()
+		window.channel.bind('raffle', => 
+			@start()
+		)
 
 	start: ->
 		won = @el.find("li.won") 
@@ -145,30 +155,63 @@ class Raffle
 		@notSelected().addClass("lost")
 		@selected().removeClass("selected").addClass("won")
 		clearInterval(@intervalEl)
-		setTimeout(
-			=> @start()
-			2000
-			)
 	selected: ->
 		@el.find("li.selected")
 	notSelected: ->
 		@el.find("li:not(.selected)")
+
+class Dashboard 
+	constructor: ->
+		@el = $('.page')
+		@ui = 
+			textArea : @el.find('.text_area')
+			sessionCounter: @el.find('.session-counter')
+
+	show: (@currentSession) ->
+		@ui.sessionCounter.empty()
+		@ui.textArea.empty()
+
+		switch @currentSession.type
+			when "text" then @gotoText()
+			when "session" then @gotoSession()
+			when "raffle" then @gotoRaffle()
+		
+	gotoText: ->
+		div = @template("#text")
+		@ui.textArea.append(div)
+		div.fadeIn()
+	
+	gotoSession: ->
+		@ui.sessionCounter.append(@template("#session"))
+		@ui.textArea.append(@template("#ideas").show())
+		for page in @currentSession.pages
+			@ui.textArea.append(@template("#text", page))
+		new Session(@el, @currentSession.secondsLeft, @currentSession.totalSeconds)
+	
+	gotoRaffle: ->
+		raffle = @template("#raffle")
+		@ui.textArea.append(raffle)
+		new Raffle(raffle)
+
+	template: (name, data = @currentSession)->
+		$(_.template($(name).html(), data))
 	
 
-$().ready =>
-	if currentSession.type == "text"
-		d = $(_.template($("#text").html(), currentSession))
-		$(".text_area").append(d)
-		d.fadeIn()
-	else if currentSession.type == "session"
-		$('.session-counter').append($(_.template($("#session").html(), currentSession)))
-		ideasDiv = $(_.template($("#ideas").html(), currentSession))
-		$('.text_area').append(ideasDiv)
-		ideasDiv.show()
-		for page in currentSession.pages
-			$('.text_area').append($(_.template($("#text").html(), page)))
-		new Session($(".page"),currentSession.secondsLeft,currentSession.totalSeconds)
-		#new Session($(".page"),45,60)
-	else if currentSession.type == "raffle"
-		$('.text_area').append($(_.template($("#raffle").html(), currentSession)))
-		new Raffle($('.raffle'))
+$().ready ->
+	window.dashboard = new Dashboard()
+	
+
+	load_page = ->
+		$.get('/current', (resp) ->
+			window.dashboard.show(resp)
+		)
+
+	pusher = new Pusher('8e45d19d023a1fd74895')
+	window.channel = pusher.subscribe('my_channel')
+	window.channel.bind('next', -> 
+		load_page()
+	)
+
+	window.dashboard.show(currentSession)
+
+	

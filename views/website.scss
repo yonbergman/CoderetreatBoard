@@ -118,10 +118,10 @@ h1,h2,h3,h4,h5{
 .raffle{
 	overflow: hidden;
 	li{
-		$h: 30px;
+		$h: 45px;
 		float: left;
 		display: block;
-		width: 200px;
+		width: 250px;
 		height: $h;
 		line-height: $h;
 		margin: 5px;
@@ -129,6 +129,7 @@ h1,h2,h3,h4,h5{
 		color: $text;
 		font-weight: bold;
 		text-align: center;
+		font-size: 32px;
 		&.selected{
 			background: $link;
 		}

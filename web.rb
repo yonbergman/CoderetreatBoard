@@ -1,8 +1,13 @@
 require 'sinatra'
 require 'sass'
 require 'json'
+require 'pusher'
 
-TIME_PER_SESSION = 45 #* 60 #45mins
+Pusher.app_id = ENV['PUSHER_APP_ID']
+Pusher.key = ENV['PUSHER_KEY']
+Pusher.secret = ENV['PUSHER_SECRET']
+
+TIME_PER_SESSION = 90 #* 60 #45mins
 
 participants = [
 	"abyx",
@@ -141,7 +146,7 @@ end
 
 get '/next' do
 	current_session += 1
-	sessions[current_session]['startTime'] = Time.now if sessions[current_session][:type] == 'session'
+	sessions[current_session]['startTime'] = Time.now if sessions[current_session][:type] == 'session'	
 	"/"
 end
 
@@ -172,3 +177,21 @@ end
 get '/remote.css' do
 	scss :remote
 end
+
+post '/stop' do
+	Pusher['my_channel'].trigger!('stop_alarm', {})
+end
+
+post '/go' do
+	current_session += 1
+	sessions[current_session]['startTime'] = Time.now if sessions[current_session][:type] == 'session'
+
+	Pusher['my_channel'].trigger!('next',{})
+end
+
+post '/raffle' do
+	Pusher['my_channel'].trigger!('raffle', {})
+end
+
+
+
