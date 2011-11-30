@@ -1,13 +1,24 @@
 class Timer
-	constructor: (@el, @secondsLeft, @session) ->
+	constructor: (@el) ->
 		@ui =
-			timer: @el.find('.timer')
+			timer: @el.find('.timer').hide()
 			name: @el.find('.session_name')
 			buttons : 
-				go: @el.find(".go")
-				nyan: @el.find(".nyan")
-				raffle: @el.find(".raffle")
+				go: @el.find(".go").show()
+				nyan: @el.find(".nyan").hide()
+				raffle: @el.find(".raffle").hide()
 		
+		@ui.buttons.go.click ->  $.post('/go') ; $(@).addClass('ui-disabled') 
+		@ui.buttons.nyan.click -> $.post('/stop') ; $(@).addClass('ui-disabled')  
+		@ui.buttons.raffle.click -> 
+			$.post('/raffle')
+			$(@).addClass('ui-disabled')
+			setTimeout(
+				=> $(@).removeClass('ui-disabled')
+				1000
+			)
+
+	setSession: (@secondsLeft, @session) ->
 		@setSessionName()
 		@ui.buttons.go.show()
 		if @session.type == "session"
@@ -22,23 +33,26 @@ class Timer
 			@ui.timer.hide()
 			@ui.buttons.nyan.hide()
 			@ui.buttons.raffle.hide()
-
-		@ui.buttons.go.click ->  $.post('/go') ; $(@).addClass('ui-disabled') 
-		@ui.buttons.nyan.click -> $.post('/stop') ; $(@).addClass('ui-disabled')  
-		@ui.buttons.raffle.click -> 
-			$.post('/raffle')
-			$(@).addClass('ui-disabled')
-			setTimeout(
-				=> $(@).removeClass('ui-disabled')
-				1000
-			)
-
 		@startTimer() if @secondsLeft?
 		
+	startSync: ->
+		clearInterval(@timeSyncInterval) if @timeSyncInterval?
+		@timeSyncInterval = setInterval(
+			=> @sync()
+			5000
+			)
+
+	sync: ->
+		$.get('/current?' + Math.random().toString(), (data) =>
+			@secondsLeft = data.secondsLeft
+		)
+		
+
 	startTimer: ->
 		if @secondsLeft > 0
 			@disableButtons()
 			@update()
+			@startSync()
 			@interval = setInterval(
 				=> @tick()
 				1000
@@ -54,6 +68,7 @@ class Timer
 		@secondsLeft -= 1
 		if @secondsLeft == 0
 			clearInterval(@interval)
+			clearInterval(@timeSyncInterval) if @timeSyncInterval?
 			@ended()
 		@update()
 
@@ -84,9 +99,10 @@ class Timer
 
 
 $().ready(->
-	load_page = ->
-		$.get('/current', (resp) ->
-			new Timer($('page'), Math.max(0,resp.secondsLeft),resp)
+	window.remote = new Timer($('page'))
+	load_page = =>
+		$.get('/current?' + Math.random().toString(), (resp) ->
+			window.remote.setSession(Math.max(0,resp.secondsLeft),resp)
 		)
 
 	pusher = new Pusher('8e45d19d023a1fd74895')

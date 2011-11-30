@@ -12,6 +12,9 @@ class ProgressBar
 		milisPassed = @totalMilis - milis
 		ticksPassed = milisPassed/@interval
 		@sizePerTick * ticksPassed
+	
+	die: ->
+		null
 		
 
 class Timer
@@ -44,6 +47,9 @@ class Timer
 	secsLeft: (milis)->
 		(milis / 1000) % 60
 	
+	die: ->
+		@el.hide()
+
 
 class Slideshow
 	constructor: (@el, @timePerSlide = 5000) ->
@@ -72,17 +78,23 @@ class Slideshow
 		@idx = 0 if @idx == @numberOfSlides 
 		@currentSlide()
 		
-	playAlarm: ->
+	playAlarm: (alarm) ->
 		iframe = $(@alarmTemplate)
-		iframe.attr("src","http://www.youtube.com/watch_popup?v=#{currentSession.alarm}&autoplay=1&iv_load_policy=3&version=3")
+		iframe.attr("src","http://www.youtube.com/watch_popup?v=#{alarm}&autoplay=1&iv_load_policy=3&version=3")
 		@el.empty().append(iframe)
 	
 	stop_alarm: ->
 		@el.empty()
 
+	die: ->
+		@stop_alarm = -> null
+		@playAlarm = -> null
+
+
+
 
 class Session
-	constructor: (@el, @secondsLeft, @totalSeconds, @interval = 10) ->
+	constructor: (@el, @secondsLeft, @totalSeconds, @alarm, @interval = 10) ->
 		@ui =
 			progressBar: @el.find(".pb-size")
 			timer: @el.find(".timer_overlay")
@@ -104,6 +116,18 @@ class Session
 			=> @tick()
 			@interval
 			)
+		@syncInterval = setInterval(
+			=> @sync()
+			5000
+			)
+
+	die: ->
+		@ui.deleteCode.hide()
+		clearInterval(@intervalObj) if @intervalObj
+		clearInterval(@syncInterval) if @syncInterval
+		for comp in @components
+			comp.die() 
+
 	tick: ->
 		@milis -= @interval
 		@end() if @milis < 0 
@@ -115,10 +139,17 @@ class Session
 
 	end: ->
 		@milis = 0
-		clearInterval(@intervalObj)
+		clearInterval(@intervalObj) if @intervalObj
+		clearInterval(@syncInterval) if @syncInterval
 		console.log("END")
 		@ui.deleteCode.show()
-		_.last(@components).playAlarm()
+		_.last(@components).playAlarm(@alarm)
+
+	sync: ->
+		$.get("/current?a"+Math.random().to_s, (resp) =>
+			left = resp.secondsLeft
+			@milis = left * 1000
+		)
 		
 
 class Raffle
@@ -127,8 +158,16 @@ class Raffle
 		window.channel.bind('raffle', => 
 			@start()
 		)
+		@dead = false
+	
+	die: ->
+		@dead = true
+		clearInterval(@intervalEl)
+		clearTimeout(@timeout)
+		
 
 	start: ->
+		return if @dead
 		won = @el.find("li.won") 
 		if won.length > 0
 			won.fadeOut(600, => won.remove();@startShuffling())
@@ -138,7 +177,7 @@ class Raffle
 	startShuffling: ->
 		console.log("Everyday I'm shuffling")
 		@el.find("li").removeClass("selected").removeClass("won").removeClass("lost")
-		setTimeout( 
+		@timeout = setTimeout( 
 			=> @end()
 			@timeToEnd
 		)
@@ -155,6 +194,7 @@ class Raffle
 		@notSelected().addClass("lost")
 		@selected().removeClass("selected").addClass("won")
 		clearInterval(@intervalEl)
+
 	selected: ->
 		@el.find("li.selected")
 	notSelected: ->
@@ -166,10 +206,14 @@ class Dashboard
 		@ui = 
 			textArea : @el.find('.text_area')
 			sessionCounter: @el.find('.session-counter')
+		@currentPage = null
 
-	show: (@currentSession) ->
+	show: (currentSession) ->
+		@currentSession = currentSession
 		@ui.sessionCounter.empty()
 		@ui.textArea.empty()
+		@currentPage.die() if @currentPage?
+
 
 		switch @currentSession.type
 			when "text" then @gotoText()
@@ -180,18 +224,19 @@ class Dashboard
 		div = @template("#text")
 		@ui.textArea.append(div)
 		div.fadeIn()
+		@currentPage = null
 	
 	gotoSession: ->
 		@ui.sessionCounter.append(@template("#session"))
 		@ui.textArea.append(@template("#ideas").show())
 		for page in @currentSession.pages
 			@ui.textArea.append(@template("#text", page))
-		new Session(@el, @currentSession.secondsLeft, @currentSession.totalSeconds)
+		@currentPage = new Session(@el, @currentSession.secondsLeft, @currentSession.totalSeconds, @currentSession.alarm)
 	
 	gotoRaffle: ->
 		raffle = @template("#raffle")
 		@ui.textArea.append(raffle)
-		new Raffle(raffle)
+		@currentPage = new Raffle(raffle)
 
 	template: (name, data = @currentSession)->
 		$(_.template($(name).html(), data))
@@ -202,7 +247,7 @@ $().ready ->
 	
 
 	load_page = ->
-		$.get('/current', (resp) ->
+		$.get('/current?' + Math.random().toString(), (resp) ->
 			window.dashboard.show(resp)
 		)
 

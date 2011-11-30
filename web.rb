@@ -160,13 +160,6 @@ get '/website.css' do
 end
 
 get '/remote' do
-	st = sessions[current_session]['startTime']
-	if !st.nil?
-		@st = st
-		time_left = (st+45*60) - Time.now
-		@seconds_left = (time_left % 60).floor
-		@minutes_left = (time_left/60).floor
-	end
 	haml :remote, :format => :html5, :locals => {:session => sessions[current_session]}
 end
 
