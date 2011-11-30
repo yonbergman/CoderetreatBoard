@@ -10,11 +10,20 @@ $font-title: Arial, san-serif;
 $font-subtitle: Arial, san-serif;
 $font-regular: Arial, san-serif;
 
+$height: 768px;
+$width: 1280px;
+$margin: 20px;
+
+$twitter-width: 350px;
+$content-width: 850px;
+
+$top-size: 50px;
+$bottom-size: 600px;
 
 body{
 	font-family: $font-regular;
 	color: $text;
-	font-size: 20px;
+	font-size: 28px;
 	background: $background;
 
 }
@@ -28,20 +37,20 @@ h1,h2,h3,h4,h5{
 }
 .container{
 	float: left;
-	width: 700px;
-	margin-left: 10px;
+	width: $content-width;
+	margin-left: $margin;
 }
 .session-counter{
 	border-radius: 5px;
 	background: $header-background;
-	height: 50px;
+	height: $top-size;
 	text-align: center;
-	line-height: 50px;
-	margin-bottom: 10px;
+	line-height: $top-size;
+	margin-bottom: $margin;
 }
 .pb-wrap{
 	width: 100%;
-	height: 50px;
+	height: $top-size;
 	border-radius: 5px;
 	background: $text-box;
 
@@ -64,9 +73,10 @@ h1,h2,h3,h4,h5{
 .timer_overlay{
 	position: fixed;
 	left: 45%;
-	height: 30px;
+	height: 65px;
 	top: 0;
-	padding: 5px 10px;
+	padding: 5px 25px;
+	font-size: 62px;
 	background: $header-background;
 	color: $header;
 	font-weight: bold;
@@ -76,10 +86,10 @@ h1,h2,h3,h4,h5{
 }
 .text_area{
 	width: 100%;
-	height: 376px;
+	height: $bottom-size + 75px;
 	background: $text-box;
 	border-radius: 5px;
-	margin-top: 10px;
+	margin-top: $margin;
 	.text{
 		padding: 10px;
 	}
@@ -89,6 +99,20 @@ h1,h2,h3,h4,h5{
 		margin: 2%;
 		
 	}
+}
+
+.delete_code{
+	position: fixed;
+	display: block;
+	padding: 40px;
+	background: $background;
+	color: white;
+	z-index: 1000;
+	padding: 9px 40px;
+	font-weight: bold;
+	font-size: 30px;
+	left: 38%;
+	top: 0;
 }
 
 .raffle{
@@ -116,5 +140,9 @@ h1,h2,h3,h4,h5{
 		}
 	}
 	
+}
+
+.twtr-timeline{
+	font-size: 20px;
 }
 

@@ -2,6 +2,8 @@ require 'sinatra'
 require 'sass'
 require 'json'
 
+TIME_PER_SESSION = 45 #* 60 #45mins
+
 participants = [
 	"abyx",
 	"yon",
@@ -23,7 +25,6 @@ participants = [
 
 	"sheba",
 	"guy",
-	"yulkes", #
 	"alon",
 	"stanislav",
 
@@ -34,6 +35,7 @@ participants = [
 	"antmir"
 ].shuffle()
 
+def create_session(id)
 pages = [
 	{ :header => "Game of Life Rules", :text => <<-eos
       <ul>
@@ -101,34 +103,46 @@ nyans = [
 	"EUgTHYFJfDM", #Jewish
 ]
 
+
+	{:type => 'session', :number => id+1, :ideas => ideas[id],:alarm => nyans[id], :pages => pages, :totalSeconds => TIME_PER_SESSION}
+end
+
 sessions = [
-	{:type => 'text', :header => "Welcome", :text => "Enjoy Breakfast"},
-	{:type => 'session', :number => 1, :ideas => ideas[0],:alarm => nyans[0], :pages => pages},
-	{:type => 'session', :number => 2, :ideas => ideas[1],:alarm => nyans[1], :pages => pages},
-	{:type => 'session', :number => 3, :ideas => ideas[2],:alarm => nyans[2], :pages => pages},
+	{:type => 'text', :header => "Hello, World;", :text => "Enjoy Breakfast"},
+	create_session(0),
+	create_session(1),
+	create_session(2),
 	{:type => 'text', :header => "Lunch Time", :text => "Om nom, nom, nom <div><img src='http://nyan-cat.com/images/nyan-cat.gif'></div>"},
-	{:type => 'session', :number => 4, :ideas => ideas[3],:alarm => nyans[3], :pages => pages},
-	{:type => 'session', :number => 5, :ideas => ideas[4],:alarm => nyans[4], :pages => pages},
-	{:type => 'session', :number => 6, :ideas => ideas[5],:alarm => nyans[5], :pages => pages},
+	create_session(3),
+	create_session(4),
+	create_session(5),
 	{:type => 'raffle', :participants => participants},
-	{:type => 'text', :header => "Bye", :text => "Thanks for coming"}
+	{:type => 'text', :header => "end();", :text => "Thanks for coming"}
 ]
 
 current_session = 0
 
 get '/' do
-	haml :website, :format => :html5, :locals => {:session => sessions[current_session]}
+	session = sessions[current_session]
+	if session['startTime']
+		session[:secondsLeft] = (session['startTime'] + TIME_PER_SESSION - Time.now).floor
+	end
+	haml :website, :format => :html5, :locals => {:session => session }
 end
 
 get '/current' do
 	content_type :json
-  	sessions[current_session].to_json
+	session = sessions[current_session]
+	if session['startTime']
+		session[:secondsLeft] = (session['startTime'] + TIME_PER_SESSION - Time.now).floor
+	end
+  	session.to_json
 end
 
 get '/next' do
 	current_session += 1
 	sessions[current_session]['startTime'] = Time.now if sessions[current_session][:type] == 'session'
-	haml :website, :format => :html5, :locals => {:session => sessions[current_session]}
+	"/"
 end
 
 get '/website.js' do

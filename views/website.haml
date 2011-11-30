@@ -38,9 +38,9 @@
 						  search: "#GDCR OR #GDCRIL",
 						  interval: 30000,
 						  title: '',
-						  subject: '#GDCRIL',
-						  width: 250,
-						  height: 300,
+						  subject: '#GDCR11 | #GDCRIL',
+						  width: 350,
+						  height: 600,
 						  theme: {
 						    shell: {
 						      background: '#995E24',
@@ -64,6 +64,7 @@
 					.pb-wrap
 						.pb-size
 				.text_area
-			.timer_overlay{:style => "display:none;"} timer
+			.timer_overlay{:style => "display:none;"}
+			.delete_code{:style => "display:none;"} DELETE YOUR CODE
 			%script
 				window.currentSession = #{session.to_json}
