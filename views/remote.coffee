@@ -8,7 +8,14 @@ class Timer
 				nyan: @el.find(".nyan").hide()
 				raffle: @el.find(".raffle").hide()
 		
-		@ui.buttons.go.click ->  $.post('/go') ; $(@).addClass('ui-disabled') 
+		@ui.buttons.go.click ->  
+			$.post('/go') 
+			$(@).addClass('ui-disabled') 
+			$.get('/current?' + Math.random().toString(), (resp) ->
+				window.remote.setSession(Math.max(0,resp.secondsLeft),resp)
+			)
+
+
 		@ui.buttons.nyan.click -> $.post('/stop') ; $(@).addClass('ui-disabled')  
 		@ui.buttons.raffle.click -> 
 			$.post('/raffle')
@@ -53,6 +60,7 @@ class Timer
 			@disableButtons()
 			@update()
 			@startSync()
+			clearInterval(@interval) if @interval
 			@interval = setInterval(
 				=> @tick()
 				1000
