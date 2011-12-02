@@ -20,7 +20,6 @@ get '/current' do
 end
 
 get '/next' do
-	current_session += 1
 	phases_manager.next.to_json
 end
 
