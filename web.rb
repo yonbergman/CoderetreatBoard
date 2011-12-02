@@ -2,7 +2,7 @@ require 'sinatra'
 require 'sass'
 require 'json'
 require 'pusher'
-require 'app/phases'
+require './app/phases'
 
 Pusher.app_id = ENV['PUSHER_APP_ID']
 Pusher.key = ENV['PUSHER_KEY']
