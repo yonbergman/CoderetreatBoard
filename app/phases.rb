@@ -1,10 +1,10 @@
 require 'json'
 
 module Phases
-	require 'config/ideas'
-	require 'config/alarms'
-	require 'config/content'
-	require 'config/participants'
+	require '../config/ideas'
+	require '../config/alarms'
+	require '../config/content'
+	require '../config/participants'
 
 	class Manager
 		def initialize()
