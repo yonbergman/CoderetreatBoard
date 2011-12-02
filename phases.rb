@@ -71,7 +71,7 @@ module Phases
 	end
 
 	class Session < Base
-		TIME_PER_SESSION = 90 * 60 #45mins
+		TIME_PER_SESSION = 45 * 60 #45mins
 	
 		def initialize(number, time_per_session = TIME_PER_SESSION)
 			data = {
